@@ -1,0 +1,37 @@
+$def with (months, year, month, dateslist, dayin, monthin)
+$var title: Vaktplan - $months[month] ($year)
+
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+
+    <center>
+        <br><br>
+        <h1>$months[month] ($year)</h1>
+        <h6><a href="/">Tilbake</a><h6>
+        <br>
+        <table style="width:80%">
+            <tr>
+                <td><center>Mandag</center></td>
+                <td><center>Tirsdag</center></td>
+                <td><center>Onsdag</center></td>
+                <td><center>Torsdag</center></td>
+                <td><center>Fredag</center></td>
+                <td><center>Lørdag</center></td>
+                <td><center>Søndag</center></td>
+            </tr>
+            $for week in dateslist:
+                <tr>
+                $for day in week:
+                    $if day[0] == 0:
+                        <td></td>
+                    $elif day[0] == dayin and month+1 == monthin:
+                        <td><center><a href="/ym/d/?year=$year&month=$month&day=$day[0]"><font color="red">$day[0]</font></a></center></td>
+                    $else:
+                        <td><center><a href="/ym/d/?year=$year&month=$month&day=$day[0]">$day[0]</a></center></td>
+                </tr>
+        </table>
+        <h6><a href="/">Tilbake</a><h6>
+    </center>

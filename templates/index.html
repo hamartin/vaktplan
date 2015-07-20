@@ -1,0 +1,43 @@
+$def with (months, year, month)
+$var title: Vaktplan
+
+    <center>
+        <br><br>
+        <h1>${year-1}</h1>
+        <br>
+        <table>
+            <tr>
+                $for itermonth in range(12):
+                    <td>
+                        <a href="/ym/?year=${year-1}&month=$itermonth">$months[itermonth]</a>
+                    </td>
+            </tr>
+        </table>
+        <br><br>
+        <h1>$year</h1>
+        <br>
+        <table>
+            <tr>
+            $for itermonth in range(12):
+                $if months[itermonth] == months[month]:
+                    <td>
+                        <a href="/ym/?year=${year}&month=$itermonth"><font color="red">$months[itermonth]</font></a>
+                    </td>
+                $else:
+                    <td>
+                        <a href="/ym/?year=${year}&month=$itermonth">$months[itermonth]</a>
+                    </td>
+            </tr>
+        </table>
+        <br><br>
+        <h1>${year+1}</h1>
+        <br>
+        <table>
+            <tr>
+            $for itermonth in range(12):
+                <td>
+                    <a href="/ym/?year=${year+1}&month=$itermonth">$months[itermonth]</a>
+                </td>
+            </tr>
+        </table>
+    </center>
