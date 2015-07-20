@@ -28,7 +28,7 @@ import web
 # Settings / Config
 #
 
-web.config.debug = True
+web.config.debug = False
 
 DBTYPE = 'sqlite'
 DBFILENAME = 'vaktplan.db'
