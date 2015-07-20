@@ -10,17 +10,17 @@ $var title: Vaktplan - $months[month] ($year)
     <center>
         <br><br>
         <h1>$months[month] ($year)</h1>
-        <h6><a href="/">Tilbake</a><h6>
+        <h6><a href="/">Back</a><h6>
         <br>
         <table style="width:80%">
             <tr>
-                <td><center>Mandag</center></td>
-                <td><center>Tirsdag</center></td>
-                <td><center>Onsdag</center></td>
-                <td><center>Torsdag</center></td>
-                <td><center>Fredag</center></td>
-                <td><center>Lørdag</center></td>
-                <td><center>Søndag</center></td>
+                <td><center>Monday</center></td>
+                <td><center>Tuesday</center></td>
+                <td><center>Wednesday</center></td>
+                <td><center>Thursday</center></td>
+                <td><center>Friday</center></td>
+                <td><center>Saturday</center></td>
+                <td><center>Sunday</center></td>
             </tr>
             $for week in dateslist:
                 <tr>
@@ -33,5 +33,5 @@ $var title: Vaktplan - $months[month] ($year)
                         <td><center><a href="/ym/d/?year=$year&month=$month&day=$day[0]">$day[0]</a></center></td>
                 </tr>
         </table>
-        <h6><a href="/">Tilbake</a><h6>
+        <h6><a href="/">Back</a><h6>
     </center>

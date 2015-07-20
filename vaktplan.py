@@ -2,11 +2,10 @@
 # coding: latin1
 
 '''
-Vaktplan er en kalender ment å brukes privat. Den støtter grunnleggende
-authentikasjon, legge til kommentarer under spesifikke datoer og fjerne de
-igjen i etterkant.
+Vaktplan is a calendar meant to be used by me privately. It supports
+basic authentication, adding and removing comments on specific dates.
 
-Syntax for å lage databasen som trengs for å kjøre siden.
+Syntax to create the database needed to run the application.
 
 sqlite> create table vaktplan (comment text, date text, cdate date);
 sqlite> create trigger insert_date_created after insert on vaktplan
@@ -52,10 +51,10 @@ URLS = (
     '/ym/', 'Ym', '/ym', 'Ym',
     '/', 'Index',
 )
-MONTHS = ('Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli',
-                    'August', 'Oktober', 'September', 'November', 'Desember')
-DAYS = ('Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag',
-                                                                    'Søndag')
+MONTHS = ('January', 'February', 'March', 'April', 'May', 'June', 'July',
+                    'August', 'October', 'September', 'November', 'December')
+DAYS = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+                                                                    'Sunday')
 APP = web.application(URLS, globals())
 RENDER = web.template.render(TEMPLATEFOLDER, base='layout')
 
@@ -197,9 +196,9 @@ class Add:
             self.year = int(i.year)
             self.month = int(i.month)
             self.day = int(i.day)
-            if i.kommentar == '':
+            if i.comment == '':
                 raise NoComment('No content.')
-            self.kommentar = i.kommentar
+            self.comment = i.comment
         except NoComment:
             raise web.seeother('/ym/d/?year={0}&month={1}&day={2}'.format(
                                             self.year, self.month, self.day))
@@ -226,7 +225,7 @@ class Add:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
             trans = dbh.transaction()
             try:
-                dbh.insert(DBTABLE, comment=self.kommentar,
+                dbh.insert(DBTABLE, comment=self.comment,
                         date="{0}.{1}.{2}".format(self.day, self.month,
                             self.year))
             except:

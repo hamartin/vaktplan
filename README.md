@@ -1,19 +1,20 @@
 # vaktplan
-Web applikasjon for å opprette og slette kommentarer i en kalender
 
-For å kjøre koden i "debug" mode, sett attributten web.config.debug til sann.
+Web application to create and delete comments in a calendar.
+
+To run the code in "debug" mode, set the attribute web.config.debug to true.
 
     web.config.debug = True
 
-Dersom du vil teste koden lokalt på maskin før det eventuelt legges på en webserver
-med f.eks. wsgi så kan man eksekvere scriptet etter å ha gitt koden kjøre rettigheter.
-En testserver vill bli opprettet som lytter på port 8080.
+If you wish to test the code locally on your machine before putting it on a
+webserver with for example wsgi you can execute the script after giving it
+execution rights. A test server will be created that listens on port 8080.
 
     chmod 755 vaktplan.py
     ./vaktplan.py
 
-I koden så finner du en attributt som heter ALLOWED. Her legger du tupples med
-brukernavn og passord, eksempel; 
+In the code you will find an attribute called ALLOWED. Put tuples in it
+containing the username and password. Example;
 
     ALLOWED = (
       ('usertest', 'passwordtest'),

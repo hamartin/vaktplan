@@ -1,4 +1,4 @@
 # vaktplan
 
-Prosjektet trenger en meget bedre authentikeringsløsning.
-Legg til support for å sende epost med lokal SMTP server.
+The project needs a much better authentication solution.
+Add support for sending emails using the local SMTP daemon.

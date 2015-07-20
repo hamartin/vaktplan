@@ -10,10 +10,10 @@ $var title: Vaktplan - $days[weekday] $day $months[month] ($year)
     <center>
         <br><br>
         <h1>$days[weekday] $day ${months[month]} ($year)</h1>
-        <h6><a href="/ym/?year=$year&month=$month">Tilbake</a></h6>
+        <h6><a href="/ym/?year=$year&month=$month">Back</a></h6>
         <form method="post" action="add">
-            <input type="text" name="kommentar" style="width: 70%;" />
-            <input type="submit" value="Legg til" style="width: 10%;" />
+            <input type="text" name="comment" style="width: 70%;" />
+            <input type="submit" value="Add" style="width: 10%;" />
             <input type="hidden" name="year" value="$year" /i>
             <input type="hidden" name="month" value="$month" />
             <input type="hidden" name="day" value="$day" />
@@ -22,12 +22,12 @@ $var title: Vaktplan - $days[weekday] $day $months[month] ($year)
         $for row in rows:
             <form method="post" action="del">
                 <input type="text" style="width: 70%;" placeholder="$row.comment" />
-                <input type="submit" style="width: 10%;" value="Slett" />
+                <input type="submit" style="width: 10%;" value="Delete" />
                 <input type="hidden" name="id" value="$row.rowid" />
                 <input type="hidden" name="year" value="$year" /i>
                 <input type="hidden" name="month" value="$month" />
                 <input type="hidden" name="day" value="$day" />
             </form>
 
-        <h6><a href="/ym/?year=$year&month=$month">Tilbake</a></h6>
+        <h6><a href="/ym/?year=$year&month=$month">Back</a></h6>
     </center>
