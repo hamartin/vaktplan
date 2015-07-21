@@ -9,11 +9,17 @@ $def with (content)
 
 <body>
 
-<style>
+<style type="text/css">
     a {
         color: blue;
     }
+    .topcorner{
+        position:absolute;
+        top:0;
+        right:0;
+    }
 </style>
+<div class="topcorner"><p><a href="/logout">Log out</a></p></div>
 $:content
 </body>
 
