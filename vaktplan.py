@@ -27,7 +27,7 @@ import web
 # Settings / Config
 #
 
-web.config.debug = False
+DEBUG = False
 AUTORELOAD = False
 
 DBTYPE = 'sqlite'
@@ -56,6 +56,7 @@ MONTHS = ('January', 'February', 'March', 'April', 'May', 'June', 'July',
                     'August', 'October', 'September', 'November', 'December')
 DAYS = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
                                                                     'Sunday')
+web.config.debug = DEBUG
 APP = web.application(URLS, globals(), autoreload=AUTORELOAD)
 RENDER = web.template.render(TEMPLATEFOLDER, base='layout')
 
