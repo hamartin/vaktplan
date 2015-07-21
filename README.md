@@ -8,7 +8,8 @@ To run the code in "debug" mode, set the attribute web.config.debug to true.
 
 If you wish to test the code locally on your machine before putting it on a
 webserver with for example wsgi you can execute the script after giving it
-execution rights. A test server will be created that listens on port 8080.
+execution rights and removing the comment for the last two lines in the code.
+A test server will be created that listens on port 8080.
 
     chmod 755 vaktplan.py
     ./vaktplan.py
