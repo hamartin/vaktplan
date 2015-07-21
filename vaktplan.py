@@ -34,9 +34,6 @@ DBTYPE = 'sqlite'
 DBFILENAME = 'vaktplan.db'
 DBTABLE = 'vaktplan'
 TEMPLATEFOLDER = 'templates/'
-ALLOWED = (
-        ('test', 'test'),
-)
 
 
 #
@@ -45,7 +42,6 @@ ALLOWED = (
 
 
 URLS = (
-    '/login/', 'Login', '/login', 'Login',
     '/ym/d/del/', 'Del', '/ym/d/del', 'Del',
     '/ym/d/add/', 'Add', '/ym/d/add', 'Add',
     '/ym/d/', 'Day', '/ym/d', 'Day',
@@ -104,10 +100,7 @@ class Index:
 
     def GET(self):
         ''' Returns the index page. '''
-        if web.ctx.env.get('HTTP_AUTHORIZATION') is not None:
-            return RENDER.index(MONTHS, self.year, self.month)
-        else:
-            web.seeother('/login')
+        return RENDER.index(MONTHS, self.year, self.month)
 
 
 class Ym:
@@ -140,11 +133,8 @@ class Ym:
 
     def GET(self):
         ''' Returns the month page. '''
-        if web.ctx.env.get('HTTP_AUTHORIZATION') is not None:
-            return RENDER.ym(MONTHS, self.year, self.month, self.dateslist,
-                    self.dayin, self.monthin)
-        else:
-            web.seeother('/login')
+        return RENDER.ym(MONTHS, self.year, self.month, self.dateslist,
+                self.dayin, self.monthin)
 
 
 class Day:
@@ -175,16 +165,13 @@ class Day:
 
     def GET(self):
         ''' Returns the day page. '''
-        if web.ctx.env.get('HTTP_AUTHORIZATION') is not None:
-            dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
-            rows = dbh.select(DBTABLE, what='comment,rowid',
-                    where='date="{0}.{1}.{2}"'.format(
-                        self.day, self.month, self.year))
+        dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
+        rows = dbh.select(DBTABLE, what='comment,rowid',
+                where='date="{0}.{1}.{2}"'.format(
+                    self.day, self.month, self.year))
 
-            return RENDER.day(MONTHS, DAYS, self.year, self.month, self.day,
-                    self.weekday, rows)
-        else:
-            web.seeother('/')
+        return RENDER.day(MONTHS, DAYS, self.year, self.month, self.day,
+                self.weekday, rows)
 
 
 class Add:
@@ -223,23 +210,20 @@ class Add:
     def POST(self):
         ''' Stores data to the database and sends the user back to the
         same page. '''
-        if web.ctx.env.get('HTTP_AUTHORIZATION') is not None:
-            dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
-            trans = dbh.transaction()
-            try:
-                dbh.insert(DBTABLE, comment=self.comment,
-                        date="{0}.{1}.{2}".format(self.day, self.month,
-                            self.year))
-            except:
-                trans.rollback()
-                raise
-            else:
-                trans.commit()
-            finally:
-                raise web.seeother('/ym/d/?year={0}&month={1}&day={2}'.format(
-                    self.year, self.month, self.day))
+        dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
+        trans = dbh.transaction()
+        try:
+            dbh.insert(DBTABLE, comment=self.comment,
+                    date="{0}.{1}.{2}".format(self.day, self.month,
+                        self.year))
+        except:
+            trans.rollback()
+            raise
         else:
-            web.seeother('/login')
+            trans.commit()
+        finally:
+            raise web.seeother('/ym/d/?year={0}&month={1}&day={2}'.format(
+                self.year, self.month, self.day))
 
 
 class Del:
@@ -273,52 +257,18 @@ class Del:
     def POST(self):
         ''' Deletes data from the database and sends the user back to
         the same page. '''
-        if web.ctx.env.get('HTTP_AUTHORIZATION') is not None:
-            dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
-            trans = dbh.transaction()
-            try:
-                dbh.delete(DBTABLE, where='rowid={0}'.format(self.rowid))
-            except:
-                trans.rollback()
-                raise
-            else:
-                trans.commit()
-            finally:
-                raise web.seeother('/ym/d/?year={0}&month={1}&day={2}'.format(
-                    self.year, self.month, self.day))
+        dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
+        trans = dbh.transaction()
+        try:
+            dbh.delete(DBTABLE, where='rowid={0}'.format(self.rowid))
+        except:
+            trans.rollback()
+            raise
         else:
-            web.seeother('/login')
-
-
-class Login:
-
-    ''' Authentication for the site. '''
-
-    def __init__(self):
-        pass
-
-    def GET(self):
-        ''' Authenticate users redirected here. '''
-        auth = web.ctx.env.get('HTTP_AUTHORIZATION')
-        authreq = False
-        if auth is None:
-            authreq = True
-        else:
-            auth = re.sub('^Basic ', '', auth)
-            username, password = base64.decodestring(auth).split(':')
-            if (username, password) in ALLOWED:
-                raise web.seeother('/')
-            else:
-                authreq = True
-
-        if authreq:
-            web.header('WWW-Authenticate', 'Basic realm="Kalender"')
-            web.ctx.status = '401 Unauthorized'
-            return RENDER.login()
-
-    def POST(self):
-        ''' Only here to make sure no one tries to fool the site. '''
-        raise web.notfound()
+            trans.commit()
+        finally:
+            raise web.seeother('/ym/d/?year={0}&month={1}&day={2}'.format(
+                self.year, self.month, self.day))
 
 
 #
