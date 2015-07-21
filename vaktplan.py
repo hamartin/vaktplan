@@ -326,8 +326,8 @@ class Login:
 # BEGIN
 #
 
+application = APP.wsgifunc()
+APP.notfound = notfound
 
-if __name__ == '__main__':
-    application = APP.wsgifunc()
-    APP.notfound = notfound
-    APP.run()
+#if __name__ == '__main__':
+    #APP.run()
