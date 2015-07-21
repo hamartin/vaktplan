@@ -28,6 +28,7 @@ import web
 #
 
 web.config.debug = False
+AUTORELOAD = False
 
 DBTYPE = 'sqlite'
 DBFILENAME = 'vaktplan.db'
@@ -55,7 +56,7 @@ MONTHS = ('January', 'February', 'March', 'April', 'May', 'June', 'July',
                     'August', 'October', 'September', 'November', 'December')
 DAYS = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
                                                                     'Sunday')
-APP = web.application(URLS, globals())
+APP = web.application(URLS, globals(), autoreload=AUTORELOAD)
 RENDER = web.template.render(TEMPLATEFOLDER, base='layout')
 
 
@@ -326,5 +327,6 @@ class Login:
 
 
 if __name__ == '__main__':
+    application = APP.wsgifunc()
     APP.notfound = notfound
     APP.run()
