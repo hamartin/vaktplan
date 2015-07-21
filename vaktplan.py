@@ -306,7 +306,6 @@ class Login:
         else:
             auth = re.sub('^Basic ', '', auth)
             username, password = base64.decodestring(auth).split(':')
-            print username + "\n" + password + "\n"
             if (username, password) in ALLOWED:
                 raise web.seeother('/')
             else:
