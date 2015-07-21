@@ -117,7 +117,7 @@ class Index:
 
     def GET(self):
         ''' Returns the index page. '''
-        if SESSION.loggedin == True:
+        if SESSION.loggedin is True:
             return RENDER.index(MONTHS, self.year, self.month)
         else:
             web.seeother('/login')
@@ -153,7 +153,7 @@ class Ym:
 
     def GET(self):
         ''' Returns the month page. '''
-        if SESSION.loggedin == True:
+        if SESSION.loggedin is True:
             return RENDER.ym(MONTHS, self.year, self.month, self.dateslist,
                                                     self.dayin, self.monthin)
         else:
@@ -188,7 +188,7 @@ class Day:
 
     def GET(self):
         ''' Returns the day page. '''
-        if SESSION.loggedin == False:
+        if SESSION.loggedin is False:
             raise web.seeother('/')
         else:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
@@ -236,7 +236,7 @@ class Add:
     def POST(self):
         ''' Stores data to the database and sends the user back to the
         same page. '''
-        if SESSION.loggedin == False:
+        if SESSION.loggedin is False:
             raise web.seeother('/')
         else:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
@@ -286,7 +286,7 @@ class Del:
     def POST(self):
         ''' Deletes data from the database and sends the user back to
         the same page. '''
-        if SESSION.loggedin == False:
+        if SESSION.loggedin is False:
             raise web.seeother('/')
         else:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
@@ -307,12 +307,15 @@ class Login:
 
     ''' Class to deal with all things authentication and login pages. '''
 
+    def __init__(self):
+        pass
+
     def GET(self):
         ''' Shows the login page. '''
         login = form.Form(
                 form.Textbox('username', form.notnull, description='Username'),
-                form.Password('password', form.notnull, description='Password'),
-                form.Button('Login'))
+                form.Password('password', form.notnull,
+                                description='Password'), form.Button('Login'))
         return RENDER.login(login())
 
     def POST(self):
@@ -350,6 +353,9 @@ class Login:
 class Logout:
 
     ''' Class that handles logging users out of the system. '''
+
+    def __init__(self):
+        pass
 
     def GET(self):
         ''' Logs the user out of this session. '''
