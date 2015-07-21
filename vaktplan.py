@@ -29,6 +29,8 @@ import calendar
 import datetime
 import hashlib
 import web
+
+from sqlite3 import OperationalError
 from web import form
 
 
@@ -339,8 +341,8 @@ class Login:
             dbupass = rows[0].password
         except IndexError:
             raise web.seeother('/login')
-        except:
-            raise web.internalerror()
+    	except OperationalError:
+	    raise web.internalerror()
 
         if(hpassword == dbupass):
             SESSION.loggedin = True
@@ -375,5 +377,5 @@ class Logout:
 APP.notfound = notfound
 application = APP.wsgifunc()
 
-if __name__ == '__main__':
-    APP.run()
+#if __name__ == '__main__':
+    #APP.run()
