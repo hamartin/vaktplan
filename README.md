@@ -20,3 +20,8 @@ containing the username and password. Example;
     ALLOWED = (
       ('usertest', 'passwordtest'),
     )
+
+There is a situation/bug with webpy's session handler. For some reason I don't
+understand the session folder needs 777 rights. If you do not create the
+folder, the script will create it, but it will not be able to use the created
+folder unless you chmod 777 it.

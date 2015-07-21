@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: latin1
 
+
 '''
 Vaktplan is a calendar meant to be used by me privately. It supports
 basic authentication, adding and removing comments on specific dates.
@@ -14,18 +15,27 @@ sqlite> create trigger insert_date_created after insert on vaktplan
     ...> where rowid = new.rowid;
     ...> end;
 sqlite>
+sqlite> create table users (user text, password text, cdate date);
+sqlite> create trigger insert_date_user_created after insert on users
+    ...> begin
+    ...> update users set cdate = datetime('now')
+    ...> where rowid = new.rowid;
+    ...> end;
+sqlite>
 '''
 
-import base64
+
 import calendar
 import datetime
-import re
+import hashlib
 import web
+from web import form
 
 
 #
 # Settings / Config
 #
+
 
 DEBUG = False
 AUTORELOAD = False
@@ -33,7 +43,9 @@ AUTORELOAD = False
 DBTYPE = 'sqlite'
 DBFILENAME = 'vaktplan.db'
 DBTABLE = 'vaktplan'
+USERTABLE = 'users'
 TEMPLATEFOLDER = 'templates/'
+SESSIONSFOLDER = 'sessions/'
 
 
 #
@@ -42,6 +54,8 @@ TEMPLATEFOLDER = 'templates/'
 
 
 URLS = (
+    '/login/', 'Login', '/login', 'Login',
+    '/logout/', 'Logout', '/logout', 'Logout',
     '/ym/d/del/', 'Del', '/ym/d/del', 'Del',
     '/ym/d/add/', 'Add', '/ym/d/add', 'Add',
     '/ym/d/', 'Day', '/ym/d', 'Day',
@@ -52,9 +66,12 @@ MONTHS = ('January', 'February', 'March', 'April', 'May', 'June', 'July',
                     'August', 'October', 'September', 'November', 'December')
 DAYS = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
                                                                     'Sunday')
-web.config.debug = DEBUG
 APP = web.application(URLS, globals(), autoreload=AUTORELOAD)
+STORE = web.session.DiskStore(SESSIONSFOLDER)
+SESSION = web.session.Session(APP, STORE,
+                        initializer={'loggedin': False, 'user': 'anonymous'})
 RENDER = web.template.render(TEMPLATEFOLDER, base='layout')
+web.config.debug = DEBUG
 
 
 #
@@ -96,11 +113,14 @@ class Index:
 
     def __str__(self):
         return repr("Index: {0}.{1}.{2}".format(self.day, self.month,
-            self.year))
+                                                                self.year))
 
     def GET(self):
         ''' Returns the index page. '''
-        return RENDER.index(MONTHS, self.year, self.month)
+        if SESSION.loggedin == True:
+            return RENDER.index(MONTHS, self.year, self.month)
+        else:
+            web.seeother('/login')
 
 
 class Ym:
@@ -119,7 +139,7 @@ class Ym:
             raise web.seeother('/')
         else:
             if(self.year < 1990 or self.year > 2020 or self.month < 0 or
-                    self.month > 11):
+                                                            self.month > 11):
                 raise web.notfound()
 
         self.yearin = int(datetime.date.today().year)
@@ -133,8 +153,11 @@ class Ym:
 
     def GET(self):
         ''' Returns the month page. '''
-        return RENDER.ym(MONTHS, self.year, self.month, self.dateslist,
-                self.dayin, self.monthin)
+        if SESSION.loggedin == True:
+            return RENDER.ym(MONTHS, self.year, self.month, self.dateslist,
+                                                    self.dayin, self.monthin)
+        else:
+            raise web.seeother('/')
 
 
 class Day:
@@ -165,13 +188,16 @@ class Day:
 
     def GET(self):
         ''' Returns the day page. '''
-        dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
-        rows = dbh.select(DBTABLE, what='comment,rowid',
-                where='date="{0}.{1}.{2}"'.format(
-                    self.day, self.month, self.year))
+        if SESSION.loggedin == False:
+            raise web.seeother('/')
+        else:
+            dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
+            rows = dbh.select(DBTABLE, what='comment,rowid',
+                    where='date="{0}.{1}.{2}"'.format(
+                        self.day, self.month, self.year))
 
-        return RENDER.day(MONTHS, DAYS, self.year, self.month, self.day,
-                self.weekday, rows)
+            return RENDER.day(MONTHS, DAYS, self.year, self.month, self.day,
+                    self.weekday, rows)
 
 
 class Add:
@@ -210,20 +236,23 @@ class Add:
     def POST(self):
         ''' Stores data to the database and sends the user back to the
         same page. '''
-        dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
-        trans = dbh.transaction()
-        try:
-            dbh.insert(DBTABLE, comment=self.comment,
-                    date="{0}.{1}.{2}".format(self.day, self.month,
-                        self.year))
-        except:
-            trans.rollback()
-            raise
+        if SESSION.loggedin == False:
+            raise web.seeother('/')
         else:
-            trans.commit()
-        finally:
-            raise web.seeother('/ym/d/?year={0}&month={1}&day={2}'.format(
-                self.year, self.month, self.day))
+            dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
+            trans = dbh.transaction()
+            try:
+                dbh.insert(DBTABLE, comment=self.comment,
+                            date="{0}.{1}.{2}".format(self.day, self.month,
+                                                                self.year))
+            except:
+                trans.rollback()
+                raise
+            else:
+                trans.commit()
+            finally:
+                raise web.seeother('/ym/d/?year={0}&month={1}&day={2}'.format(
+                                            self.year, self.month, self.day))
 
 
 class Del:
@@ -257,18 +286,80 @@ class Del:
     def POST(self):
         ''' Deletes data from the database and sends the user back to
         the same page. '''
-        dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
-        trans = dbh.transaction()
-        try:
-            dbh.delete(DBTABLE, where='rowid={0}'.format(self.rowid))
-        except:
-            trans.rollback()
-            raise
+        if SESSION.loggedin == False:
+            raise web.seeother('/')
         else:
-            trans.commit()
-        finally:
-            raise web.seeother('/ym/d/?year={0}&month={1}&day={2}'.format(
-                self.year, self.month, self.day))
+            dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
+            trans = dbh.transaction()
+            try:
+                dbh.delete(DBTABLE, where='rowid={0}'.format(self.rowid))
+            except:
+                trans.rollback()
+                raise
+            else:
+                trans.commit()
+            finally:
+                raise web.seeother('/ym/d/?year={0}&month={1}&day={2}'.format(
+                                            self.year, self.month, self.day))
+
+
+class Login:
+
+    ''' Class to deal with all things authentication and login pages. '''
+
+    def GET(self):
+        ''' Shows the login page. '''
+        login = form.Form(
+                form.Textbox('username', form.notnull, description='Username'),
+                form.Password('password', form.notnull, description='Password'),
+                form.Button('Login'))
+        return RENDER.login(login())
+
+    def POST(self):
+        ''' Process the login credentials. '''
+
+        i = web.input()
+        try:
+            username = i.username
+            password = i.password
+        except:
+            raise web.seeother('/login')
+        else:
+            cshash = hashlib.sha256()
+            cshash.update(password)
+            hpassword = cshash.hexdigest()
+
+        try:
+            dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
+            rows = dbh.select(USERTABLE, what='password',
+                                        where='user="{0}"'.format(username))
+            dbupass = rows[0].password
+        except IndexError:
+            raise web.seeother('/login')
+        except:
+            raise web.internalerror()
+
+        if(hpassword == dbupass):
+            SESSION.loggedin = True
+            SESSION.username = username
+            raise web.seeother('/')
+        else:
+            raise web.seeother('/login')
+
+
+class Logout:
+
+    ''' Class that handles logging users out of the system. '''
+
+    def GET(self):
+        ''' Logs the user out of this session. '''
+        SESSION.kill()
+        raise web.seeother('/login')
+
+    def POST(self):
+        ''' Dummy, logs out the user from the current session. '''
+        SESSION.kill()
+        raise web.seeother('/login')
 
 
 #
@@ -278,5 +369,5 @@ class Del:
 APP.notfound = notfound
 application = APP.wsgifunc()
 
-#if __name__ == '__main__':
-    #APP.run()
+if __name__ == '__main__':
+    APP.run()
