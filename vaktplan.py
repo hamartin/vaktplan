@@ -56,6 +56,7 @@ SESSIONSFOLDER = 'sessions/'
 
 
 URLS = (
+    '/changepass/', 'Changepass', '/changepass', 'Changepass',
     '/login/', 'Login', '/login', 'Login',
     '/logout/', 'Logout', '/logout', 'Logout',
     '/ym/d/del/', 'Del', '/ym/d/del', 'Del',
@@ -71,8 +72,9 @@ DAYS = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
 APP = web.application(URLS, globals(), autoreload=AUTORELOAD)
 STORE = web.session.DiskStore(SESSIONSFOLDER)
 SESSION = web.session.Session(APP, STORE,
-                        initializer={'loggedin': False, 'user': 'anonymous'})
-RENDER = web.template.render(TEMPLATEFOLDER, base='layout')
+                        initializer={'loggedin': False, 'username': 'anonymous'})
+RENDER = web.template.render(TEMPLATEFOLDER, base='layout',
+                                                globals={'context': SESSION})
 web.config.debug = DEBUG
 
 
@@ -370,6 +372,21 @@ class Logout:
         raise web.seeother('/login')
 
 
+class Changepass:
+
+    ''' A class that handles changing a users password. '''
+
+    def __init__(self):
+        pass
+
+    def GET(self):
+        ''' Shows the change password page. '''
+        return RENDER.changepass()
+
+    def POST(self):
+        pass
+
+
 #
 # BEGIN
 #
@@ -377,5 +394,5 @@ class Logout:
 APP.notfound = notfound
 application = APP.wsgifunc()
 
-#if __name__ == '__main__':
-    #APP.run()
+if __name__ == '__main__':
+    APP.run()

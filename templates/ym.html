@@ -1,36 +1,30 @@
 $def with (months, year, month, dateslist, dayin, monthin)
 $var title: Vaktplan - $months[month] ($year)
 
-<style>
-    table, th, td {
-        border: 1px solid black;
-    }
-</style>
-
 <center>
     <br><br>
     <h1>$months[month] ($year)</h1>
     <h6><a href="/">Back</a><h6>
     <br>
-    <table style="width:80%">
+    <table class="ymtable" style="width:80%">
         <tr>
-            <td><center>Monday</center></td>
-            <td><center>Tuesday</center></td>
-            <td><center>Wednesday</center></td>
-            <td><center>Thursday</center></td>
-            <td><center>Friday</center></td>
-            <td><center>Saturday</center></td>
-            <td><center>Sunday</center></td>
+            <th class="ymtable"><center>Monday</center></td>
+            <th class="ymtable"><center>Tuesday</center></td>
+            <th class="ymtable"><center>Wednesday</center></td>
+            <th class="ymtable"><center>Thursday</center></td>
+            <th class="ymtable"><center>Friday</center></td>
+            <th class="ymtable"><center>Saturday</center></td>
+            <th class="ymtable"><center>Sunday</center></td>
         </tr>
         $for week in dateslist:
             <tr>
             $for day in week:
                 $if day[0] == 0:
-                    <td></td>
+                    <td class="ymtable"></td>
                 $elif day[0] == dayin and month+1 == monthin:
-                    <td><center><a href="/ym/d/?year=$year&month=$month&day=$day[0]"><font color="red">$day[0]</font></a></center></td>
+                    <td class="ymtable"><center><a href="/ym/d/?year=$year&month=$month&day=$day[0]"><font color="red">$day[0]</font></a></center></td>
                 $else:
-                    <td><center><a href="/ym/d/?year=$year&month=$month&day=$day[0]">$day[0]</a></center></td>
+                    <td class="ymtable"><center><a href="/ym/d/?year=$year&month=$month&day=$day[0]">$day[0]</a></center></td>
             </tr>
     </table>
     <h6><a href="/">Back</a><h6>

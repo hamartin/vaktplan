@@ -5,21 +5,29 @@ $def with (content)
 
 <head>
     <title>$content.title</title>
+    <meta name="author" content="Hans Åge Martinsen">
+    <meta name="description" content="A basic calendar application">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="latin1">
+    <link rel="stylesheet" href="/static/vaktplan.css?v=1">
 </head>
 
 <body>
 
-<style type="text/css">
-    a {
-        color: blue;
-    }
-    .topcorner{
-        position:absolute;
-        top:0;
-        right:0;
-    }
-</style>
-<div class="topcorner"><p><a href="/logout">Log out</a></p></div>
+$if not context.username == 'anonymous' and context.loggedin is True:
+    <nav id="primary_nav_wrap">
+        <ul>
+            <li><a class="current_menu_item" href="/">Home</a></li>
+            <li>
+                <a>$context.username.title()</a>
+                <ul>
+                    <li><a href="/changepass">Change password</a></li>
+                    <li><a href="/logout">Log out</a></li>
+                </ul>
+            </li>
+            <li><a href="mailto:webmaster@cryp.no?Subject=Vaktplan" target="_top">Contact us</a></li>
+        </ul>
+    </nav>
 $:content
 </body>
 

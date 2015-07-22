@@ -1,7 +1,10 @@
 # vaktplan
 
 Add support for sending emails using the local SMTP daemon.
-Add something to display which user is logged in.
 Add so that it says which user added the comment in the calendar.
 Add so that users can be added from the webpage by an administrator.
 Add link that will create the needed tables in the database?
+
+create a properly written readme which can be used to configure wsgi and how to
+store the files so that things can be symlinked to a production system without
+compromising/exposing the executable python scripts and database.

@@ -1,12 +1,12 @@
 $def with (lform)
 $var title: Login Vaktplan
-
 <center>
     <br><br>
     <h1>Login</h1>
     <br>
     <form name="login" method="post"> 
-$if not lform.valid: <p class="error">Try again:</p>
+    $if not lform.valid:
+        <p class="error">Try again:</p>
 $:lform.render()
     </form>
 </center>

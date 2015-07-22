@@ -21,7 +21,7 @@ $var title: Vaktplan
         $for itermonth in range(12):
             $if months[itermonth] == months[month]:
                 <td>
-                    <a href="/ym/?year=${year}&month=$itermonth"><font color="red">$months[itermonth]</font></a>
+                    <a class="ared" href="/ym/?year=${year}&month=$itermonth">$months[itermonth]</a>
                 </td>
             $else:
                 <td>
