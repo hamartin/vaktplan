@@ -72,7 +72,7 @@ DAYS = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
 APP = web.application(URLS, globals(), autoreload=AUTORELOAD)
 STORE = web.session.DiskStore(SESSIONSFOLDER)
 SESSION = web.session.Session(APP, STORE,
-                        initializer={'loggedin': False, 'username': 'anonymous'})
+                    initializer={'loggedin': False, 'username': 'anonymous'})
 RENDER = web.template.render(TEMPLATEFOLDER, base='layout',
                                                 globals={'context': SESSION})
 web.config.debug = DEBUG
@@ -84,8 +84,39 @@ web.config.debug = DEBUG
 
 
 def notfound():
-    ''' Returns custom 404 page. '''
+    ''' Returns custom 404 page. This function is intended to be hooked
+    into web.py's running application's notfound method. '''
     return web.notfound(RENDER.notfound())
+
+
+def loggedin():
+    ''' Returns True if logged in and user is not anonymous, else False. '''
+    if SESSION.username == 'anonymous' or SESSION.loggedin is False:
+        return False
+    else:
+        return True
+
+
+def gethash(inputstring):
+    ''' Returns input string as a hashed sha256 hex digest. '''
+    cshash = hashlib.sha256()
+    cshash.update(inputstring)
+    return cshash.hexdigest()
+
+
+def updatepassword(username, password):
+    ''' Updates a users password in the database. '''
+
+    dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
+    trans = dbh.transaction()
+    try:
+        dbh.update(USERTABLE, where='user="{0}"'.format(username),
+                                        password='{0}'.format(password))
+    except:
+        trans.rollback()
+        raise web.internalerror()
+    else:
+        trans.commit()
 
 
 #
@@ -121,10 +152,17 @@ class Index:
 
     def GET(self):
         ''' Returns the index page. '''
-        if SESSION.loggedin is True:
+        if loggedin():
             return RENDER.index(MONTHS, self.year, self.month)
         else:
-            web.seeother('/login')
+            raise web.seeother('/login')
+
+    def POST(self):
+        ''' Dummy, forwards the user to /. '''
+        if loggedin():
+            raise web.seeother('/')
+        else:
+            raise web.seeother('/login')
 
 
 class Ym:
@@ -157,11 +195,18 @@ class Ym:
 
     def GET(self):
         ''' Returns the month page. '''
-        if SESSION.loggedin is True:
+        if not loggedin():
+            raise web.seeother('/login')
+        else:
             return RENDER.ym(MONTHS, self.year, self.month, self.dateslist,
                                                     self.dayin, self.monthin)
-        else:
+
+    def POST(self):
+        ''' Dummy, forwards the user to /. '''
+        if loggedin():
             raise web.seeother('/')
+        else:
+            raise web.seeother('/login')
 
 
 class Day:
@@ -192,8 +237,8 @@ class Day:
 
     def GET(self):
         ''' Returns the day page. '''
-        if SESSION.loggedin is False:
-            raise web.seeother('/')
+        if not loggedin():
+            raise web.seeother('/login')
         else:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
             rows = dbh.select(DBTABLE, what='comment,rowid',
@@ -202,6 +247,13 @@ class Day:
 
             return RENDER.day(MONTHS, DAYS, self.year, self.month, self.day,
                     self.weekday, rows)
+
+    def POST(self):
+        ''' Dummy, forwards the user to /. '''
+        if loggedin():
+            raise web.seeother('/')
+        else:
+            raise web.seeother('/login')
 
 
 class Add:
@@ -234,21 +286,23 @@ class Add:
         return repr("Add: {0}.{1}.{2}".format(self.day, self.month, self.year))
 
     def GET(self):
-        ''' Only here to make sure no one tries to fool the site. '''
-        raise web.notfound()
+        ''' Dummy, forwards to /. '''
+        if loggedin():
+            raise web.seeother('/')
+        else:
+            raise web.seeother('/login')
 
     def POST(self):
         ''' Stores data to the database and sends the user back to the
         same page. '''
-        if SESSION.loggedin is False:
-            raise web.seeother('/')
+        if not loggedin():
+            raise web.seeother('/login')
         else:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
             trans = dbh.transaction()
             try:
                 dbh.insert(DBTABLE, comment=self.comment,
-                            date="{0}.{1}.{2}".format(self.day, self.month,
-                                                                self.year))
+                    date="{0}.{1}.{2}".format(self.day, self.month, self.year))
             except:
                 trans.rollback()
                 raise
@@ -284,14 +338,17 @@ class Del:
         return repr("Del: {0}.{1}.{2}".format(self.day, self.month, self.year))
 
     def GET(self):
-        ''' Only here to make sure no one tries to fool the site. '''
-        raise web.notfound()
+        ''' Dummy, forwards to /. '''
+        if loggedin():
+            raise web.seeother('/')
+        else:
+            raise web.seeother('/login')
 
     def POST(self):
         ''' Deletes data from the database and sends the user back to
         the same page. '''
-        if SESSION.loggedin is False:
-            raise web.seeother('/')
+        if not loggedin():
+            raise web.seeother('/login')
         else:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
             trans = dbh.transaction()
@@ -312,29 +369,27 @@ class Login:
     ''' Class to deal with all things authentication and login pages. '''
 
     def __init__(self):
-        pass
+        self.login = form.Form(
+                form.Textbox('username', form.notnull, description='Username'),
+                form.Password('password', form.notnull,
+                                                    description='Password'),
+                form.Button('Login'))
 
     def GET(self):
         ''' Shows the login page. '''
-        login = form.Form(
-                form.Textbox('username', form.notnull, description='Username'),
-                form.Password('password', form.notnull,
-                                description='Password'), form.Button('Login'))
-        return RENDER.login(login())
+        login = self.login()
+        return RENDER.login(login)
 
     def POST(self):
         ''' Process the login credentials. '''
 
-        i = web.input()
-        try:
-            username = i.username
-            password = i.password
-        except:
-            raise web.seeother('/login')
+        login = self.login()
+        if not login.validates():
+            return RENDER.login(login)
         else:
-            cshash = hashlib.sha256()
-            cshash.update(password)
-            hpassword = cshash.hexdigest()
+            username = login['username'].value
+            password = login['password'].value
+            hpassword = gethash(password)
 
         try:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
@@ -343,7 +398,7 @@ class Login:
             dbupass = rows[0].password
         except IndexError:
             raise web.seeother('/login')
-    	except OperationalError:
+        except OperationalError:
             raise web.internalerror()
 
         if(hpassword == dbupass):
@@ -377,14 +432,55 @@ class Changepass:
     ''' A class that handles changing a users password. '''
 
     def __init__(self):
-        pass
+        self.chpform = form.Form(
+                form.Password('oldpassword', form.notnull,
+                            description='Old password'),
+                form.Password('newpassword', form.notnull,
+                            description='New password'),
+                form.Password('newpassword2', form.notnull,
+                            description='Confirm password'),
+                form.Button('Confirm'),
+                validators=[form.Validator("Passwords didn't match.",
+                                lambda i: i.newpassword == i.newpassword2)])
 
     def GET(self):
         ''' Shows the change password page. '''
-        return RENDER.changepass()
+        if not loggedin():
+            raise web.seeother('/login')
+        else:
+            chpform = self.chpform()
+            return RENDER.changepass(chpform)
 
     def POST(self):
-        pass
+        ''' Handles changing password. '''
+        chpform = self.chpform()
+        if not loggedin():
+            raise web.seeother('/login')
+        elif not chpform.validates():
+            return RENDER.changepass(chpform)
+        else:
+            oldpassword = gethash(chpform['oldpassword'].value)
+            newpassword = gethash(chpform['newpassword'].value)
+
+        if oldpassword == newpassword:
+            return RENDER.changepass(chpform)
+
+        try:
+            dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
+            rows = dbh.select(USERTABLE, what='password',
+                                where='user="{0}"'.format(SESSION.username))
+            dbupass = rows[0].password
+        except IndexError:
+            SESSION.kill()
+            raise web.internalerror()
+        except OperationalError:
+            raise web.internalerror()
+
+        if dbupass == oldpassword:
+            updatepassword(SESSION.username, newpassword)
+            raise web.seeother('/')
+        else:
+            return RENDER.changepass(chpform)
 
 
 #

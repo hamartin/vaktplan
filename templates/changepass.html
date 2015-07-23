@@ -1,7 +1,18 @@
+$def with (chpform)
 $var title: Change password - Vaktplan
 
 <center>
     <br><br>
     <h1>Change password</h1>
     <br>
+    <form name="chpass" method="post">
+    $if not chpform.valid:
+        <table>
+            <tr><td><p class="error">Error: The following can be wrong.</p></td></tr>
+            <tr><td><p class="error">1: Passwords not entered into all fields.</p></td></tr>
+            <tr><td><p class="error">2: Missmatch between new password and confirmation.</p></td></tr>
+            <tr><td><p class="error">3: Wrong password was entered for "Old password".</p></td></tr>
+        </table>
+    $:chpform.render()
+    </form>
 </center>
