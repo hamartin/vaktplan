@@ -1,13 +1,19 @@
 # vaktplan
 
 Add support for sending emails using the local SMTP daemon.
-Add so that it says which user added the comment in the calendar.
-Add so that users can be added from the webpage by an administrator.
-Add link that will create the needed tables in the database?
+Add functionality so that vakplan tells you who has committed a comment
+    and at which time the person did so.
+Add functionality so that one can chose if a comment is to be deleted
+    from the database or just marked as deleted.
+Add functionality so that an administrator can add new users.
+Add a setup script or functionality in the script that will check for
+    required tables in the database and create them if they are not
+    there and the user tells the script to create them.
 
-Fix the error messages in the change password section of the code and
-templates. As they are now they are not very clear when or what has gone wrong.
+All sections containing forms need to be reviewed. The error messages
+    are difficult to understand or just looks terrible.
 
-create a properly written readme which can be used to configure wsgi and how to
-store the files so that things can be symlinked to a production system without
-compromising/exposing the executable python scripts and database.
+Write a proper README file. It should contain information about the
+    database, wsgi and apache setup. Maybe even a minimal setup
+    description. Write about how to set up the whole thing without
+    exposing the python script itself.
