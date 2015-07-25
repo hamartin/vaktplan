@@ -1,4 +1,4 @@
-# vaktplan
+# Vaktplan
 
 Web application to create and delete comments in a calendar.
 
@@ -25,3 +25,7 @@ There is a situation/bug with webpy's session handler. For some reason I don't
 understand the session folder needs 777 rights. If you do not create the
 folder, the script will create it, but it will not be able to use the created
 folder unless you chmod 777 it.
+
+This file is not very good at describing the application since I don't know
+what the application will be in the end. This will be updated to reflect the
+final version when I consider the software to be the "final" version.

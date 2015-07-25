@@ -1,4 +1,4 @@
-# vaktplan
+# Vaktplan
 
 Add support for sending emails using the local SMTP daemon.
 Add functionality so that vakplan tells you who has committed a comment
