@@ -14,19 +14,25 @@ to change password after logging in.
 
 Syntax to create the database needed to run the application.
 
-sqlite> create table vaktplan (comment text, date text, cdate date);
-sqlite> create trigger insert_date_created after insert on vaktplan
-    ...> begin
-    ...> update vaktplan set cdate = datetime('now')
-    ...> where rowid = new.rowid;
-    ...> end;
+sqlite> CREATE TABLE vaktplan (
+    comment TEXT,
+    date TEXT,
+    cdate DATE,
+    user INTEGER,
+    FOREIGN KEY(user) REFERENCES users(rowid)
+);
+sqlite> CREATE TRIGGER insert_date_created AFTER INSERT ON vaktplan
+    ...> BEGIN
+    ...> UPDATE vaktplan SET cdate = datetime('now')
+    ...> WHERE rowid = new.rowid;
+    ...> END;
 sqlite>
-sqlite> create table users (user text, password text, cdate date);
-sqlite> create trigger insert_date_user_created after insert on users
-    ...> begin
-    ...> update users set cdate = datetime('now')
-    ...> where rowid = new.rowid;
-    ...> end;
+sqlite> CREATE TABLE users (user TEXT, password TEXT, cdate DATE);
+sqlite> CREATE TRIGGER insert_date_user_created AFTER INSERT ON users
+    ...> BEGIN
+    ...> UPDATE users SET cdate = datetime('now')
+    ...> WHERE rowid = new.rowid;
+    ...> END;
 sqlite>
 '''
 
@@ -239,12 +245,23 @@ class Day:
             raise web.seeother('/login')
         else:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
-            rows = dbh.select(DBTABLE, what='comment,rowid',
-                    where='date="{0}.{1}.{2}"'.format(
-                        self.day, self.month, self.year))
+
+            rows = dbh.select(DBTABLE, what='comment,rowid,user',
+                                            where='date="{0}.{1}.{2}"'.format(
+                                            self.day, self.month, self.year))
+            comments = []
+            for row in rows:
+                tmpstore = row
+                comments.append([tmpstore.comment, tmpstore.rowid,
+                                                                tmpstore.user])
+            rows = dbh.select(USERTABLE, what='rowid,user')
+            users = {}
+            for row in rows:
+                tmpstore = row
+                users[tmpstore.rowid] = tmpstore.user
 
             return RENDER.day(MONTHS, DAYS, self.year, self.month, self.day,
-                    self.weekday, rows)
+                    self.weekday, comments, users)
 
 
 class Add:
@@ -287,7 +304,9 @@ class Add:
             trans = dbh.transaction()
             try:
                 dbh.insert(DBTABLE, comment=self.comment,
-                    date="{0}.{1}.{2}".format(self.day, self.month, self.year))
+                        user=SESSION.userid,
+                        date="{0}.{1}.{2}".format(self.day, self.month,
+                                                                self.year))
             except:
                 trans.rollback()
                 raise
@@ -371,9 +390,11 @@ class Login:
 
         try:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
-            rows = dbh.select(USERTABLE, what='password',
+            rows = dbh.select(USERTABLE, what='password,rowid',
                                         where='user="{0}"'.format(username))
-            dbupass = rows[0].password
+            tmpstore = rows[0]
+            dbupass = tmpstore.password
+            userid = tmpstore.rowid
         except IndexError:
             raise web.seeother('/login')
         except OperationalError:
@@ -382,6 +403,7 @@ class Login:
         if(hpassword == dbupass):
             SESSION.loggedin = True
             SESSION.username = username
+            SESSION.userid = userid
             raise web.seeother('/')
         else:
             raise web.seeother('/login')

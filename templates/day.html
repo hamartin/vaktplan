@@ -1,4 +1,4 @@
-$def with (months, days, year, month, day, weekday, rows)
+$def with (months, days, year, month, day, weekday, comments, users)
 $var title: Vaktplan - $days[weekday] $day $months[month] ($year)
 
 <center>
@@ -13,11 +13,12 @@ $var title: Vaktplan - $days[weekday] $day $months[month] ($year)
         <input type="hidden" name="day" value="$day" />
     </form>
     <br>
-    $for row in rows:
+    $for comment in comments:
         <form class="dayform" method="post" action="del">
-            <input class="daycomment" type="text" placeholder="$row.comment" />
+            <input type="text" placeholder="$comment[0]" style="width: 59%;" />
+            <input type="text" placeholder="$users[comment[2]]" style="width: 10%;" />
             <input class="daysubmit" type="submit" value="Delete" />
-            <input type="hidden" name="id" value="$row.rowid" />
+            <input type="hidden" name="id" value="$comment[1]"  />
             <input type="hidden" name="year" value="$year" /i>
             <input type="hidden" name="month" value="$month" />
             <input type="hidden" name="day" value="$day" />
