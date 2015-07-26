@@ -1,4 +1,4 @@
-$def with (lform)
+$def with (lform, err)
 $var title: Login - Vaktplan
 <center>
     <br><br>
@@ -7,4 +7,7 @@ $var title: Login - Vaktplan
     <form name="login" method="post"> 
     $:lform.render()
     </form>
+    $if err:
+        <br>
+        <p class="error">$err</p>
 </center>

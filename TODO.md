@@ -8,9 +8,6 @@ Add a setup script or functionality in the script that will check for
     required tables in the database and create them if they are not
     there and the user tells the script to create them.
 
-All sections containing forms need to be reviewed. The error messages
-    are difficult to understand or just looks terrible.
-
 Write a proper README file. It should contain information about the
     database, wsgi and apache setup. Maybe even a minimal setup
     description. Write about how to set up the whole thing without

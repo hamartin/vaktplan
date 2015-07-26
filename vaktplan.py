@@ -376,14 +376,14 @@ class Login:
     def GET(self):
         ''' Shows the login page. '''
         login = self.login()
-        return RENDER.login(login)
+        return RENDER.login(login, None)
 
     def POST(self):
         ''' Process the login credentials. '''
         login = self.login()
 
         if not login.validates():
-            return RENDER.login(login)
+            return RENDER.login(login, None)
         else:
             username = login['username'].value
             hpassword = gethash(login['password'].value)
@@ -396,7 +396,7 @@ class Login:
             dbupass = tmpstore.password
             userid = tmpstore.rowid
         except IndexError:
-            raise web.seeother('/login')
+            return RENDER.login(login, 'Username or password is wrong'.upper())
         except OperationalError:
             raise web.internalerror()
 
@@ -406,7 +406,7 @@ class Login:
             SESSION.userid = userid
             raise web.seeother('/')
         else:
-            raise web.seeother('/login')
+            return RENDER.login(login, 'Username or password is wrong'.upper())
 
 
 class Logout:
@@ -446,7 +446,7 @@ class Changepass:
             raise web.seeother('/login')
         else:
             chpform = self.chpform()
-            return RENDER.changepass(chpform)
+            return RENDER.changepass(chpform, None)
 
     def POST(self):
         ''' Handles changing password. '''
@@ -454,13 +454,13 @@ class Changepass:
         if not loggedin():
             raise web.seeother('/login')
         elif not chpform.validates():
-            return RENDER.changepass(chpform)
+            return RENDER.changepass(chpform, None)
         else:
             oldpassword = gethash(chpform['oldpassword'].value)
             newpassword = gethash(chpform['newpassword'].value)
 
         if oldpassword == newpassword:
-            return RENDER.changepass(chpform)
+            return RENDER.changepass(chpform, 'The new password can not be the same as the new one'.upper())
 
         try:
             dbh = web.database(dbn=DBTYPE, db=DBFILENAME)
@@ -477,7 +477,7 @@ class Changepass:
             updatepassword(SESSION.username, newpassword)
             raise web.seeother('/')
         else:
-            return RENDER.changepass(chpform)
+            return RENDER.changepass(chpform, 'Password entered wrong'.upper())
 
 
 #

@@ -6,7 +6,7 @@ $var title: Vaktplan - $days[weekday] $day $months[month] ($year)
     <h1>$days[weekday] $day ${months[month]} ($year)</h1>
     <h6><a href="/ym/?year=$year&month=$month">Back</a></h6>
     <form class="dayform" method="post" action="add">
-        <input class="daycomment" type="text" name="comment" />
+        <input class="daycomment" type="text" name="comment" placeholder="Comment" />
         <input class="daysubmit" type="submit" value="Add" />
         <input type="hidden" name="year" value="$year" /i>
         <input type="hidden" name="month" value="$month" />
