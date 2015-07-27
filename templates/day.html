@@ -4,7 +4,7 @@ $var title: Vaktplan - $days[weekday] $day $months[month] ($year)
 <center>
     <br><br>
     <h1>$days[weekday] $day ${months[month]} ($year)</h1>
-    <h6><a href="/ym/?year=$year&month=$month">Back</a></h6>
+    <a href="/ym/?year=$year&month=$month">Back</a>
     <form class="dayform" method="post" action="add">
         <input class="daycomment" type="text" name="comment" placeholder="Comment" />
         <input class="daysubmit" type="submit" value="Add" />
@@ -15,8 +15,8 @@ $var title: Vaktplan - $days[weekday] $day $months[month] ($year)
     <br>
     $for comment in comments:
         <form class="dayform" method="post" action="del">
-            <input class="daycomment" type="text" placeholder="$comment[0]" />
-            $users[comment[2]]
+            <label for="daycomment">$users[comment[2]].title()</label>
+            <input class="daycomment" name="daycomment" type="text" placeholder="$comment[0]" />
             <input class="daysubmit" type="submit" value="Delete" />
             <input type="hidden" name="id" value="$comment[1]"  />
             <input type="hidden" name="year" value="$year" /i>
