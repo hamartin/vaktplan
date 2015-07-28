@@ -371,7 +371,7 @@ class Login:
                                                     description='Username'),
                 web.form.Password('password', web.form.notnull,
                                                     description='Password'),
-                web.form.Button('Login'))
+                web.form.Button('Login', class_="btn btn-blue"))
 
     def GET(self):
         ''' Shows the login page. '''
@@ -436,7 +436,7 @@ class Changepass:
                                                 description='New password'),
                 web.form.Password('newpassword2', web.form.notnull,
                                             description='Confirm password'),
-                web.form.Button('Confirm'),
+                web.form.Button('Confirm', class_="btn btn-blue"),
                 validators=[web.form.Validator("Passwords didn't match.",
                                 lambda i: i.newpassword == i.newpassword2)])
 
