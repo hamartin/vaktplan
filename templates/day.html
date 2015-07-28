@@ -8,7 +8,7 @@ $var title: Vaktplan - $days[weekday] $day $months[month] ($year)
     <br><br>
     <form class="dayform" method="post" action="add">
         <input class="daycomment" type="text" name="comment" placeholder="Comment" />
-        <input class="daysubmit" type="submit" value="Add" />
+        <input class="daysubmit btn btn-blue" type="submit" value="Add" />
         <input type="hidden" name="year" value="$year" /i>
         <input type="hidden" name="month" value="$month" />
         <input type="hidden" name="day" value="$day" />
@@ -16,11 +16,13 @@ $var title: Vaktplan - $days[weekday] $day $months[month] ($year)
     <br>
     $for comment in comments:
         <form class="dayform" method="post" action="del">
-            <p class="display: inline-block; width: 100%;">
-                <span class="pday" style="width: 59%;">$comment[0]</span>
-                <span class="pday" style="width: 10%;">$users[comment[2]].title()</span>
-                <span><input class="pinput" type="submit" value="Delete" /></span>
-            </p>
+            <div class="button_container">
+                <p class="display: inline-block; width: 100%;">
+                    <span class="pday" style="width: 59%;">$comment[0]</span>
+                    <span class="pday" style="width: 10%;">$users[comment[2]].title()</span>
+                        <span><input class="pinput btn btn-blue" type="submit" value="Delete" /></span>
+                </p>
+            </div>
             <input type="hidden" name="id" value="$comment[1]"  />
             <input type="hidden" name="year" value="$year" /i>
             <input type="hidden" name="month" value="$month" />
