@@ -58,3 +58,5 @@ target/
 
 # SQLite database
 *.db
+
+sessions
