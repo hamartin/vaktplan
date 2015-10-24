@@ -54,11 +54,11 @@ DEBUG = False
 AUTORELOAD = False
 
 DBTYPE = 'sqlite'
-DBFILENAME = 'vaktplan.db'
+DBFILENAME = '/srv/www/kalender.moshwire.com/production/vaktplan.db'
 DBTABLE = 'vaktplan'
 USERTABLE = 'users'
-TEMPLATEFOLDER = 'templates/'
-SESSIONSFOLDER = 'sessions/'
+TEMPLATEFOLDER = '/srv/www/kalender.moshwire.com/production/templates/'
+SESSIONSFOLDER = '/srv/www/kalender.moshwire.com/production/sessions/'
 
 
 #
